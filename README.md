@@ -1,6 +1,6 @@
 # Job Intel Agent
 
-**Live demo:** [https://job-intel-agent.up.railway.app](https://job-intel-agent.up.railway.app)
+**Live demo:** [https://web-production-f7c5.up.railway.app](https://web-production-f7c5.up.railway.app)
 
 Paste a job posting URL or raw text, upload your CV, and get back a structured match report: score, skill gaps, talking points, and a tailored pitch. Optionally, hit "Rewrite CV" to get section-by-section improvement tips and a rewritten version optimized for that specific role.
 
