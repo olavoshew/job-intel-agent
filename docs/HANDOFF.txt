@@ -1,0 +1,43 @@
+HAND-OFF: Job Intel Agent -> Portfolio Website
+===============================================
+
+STATUS: All code complete, 12 tests pass, dark theme UI, screenshots captured.
+NEXT: Push to GitHub (public), integrate into website.
+
+STEP 1 - Push to GitHub
+------------------------
+  gh repo create job-intel-agent --public --source=. --push
+  OR:
+  git remote add origin https://github.com/olavoshew/job-intel-agent.git
+  git branch -M main
+  git push -u origin main
+
+STEP 2 - Deploy to Railway
+---------------------------
+  railway login
+  railway init
+  railway up
+  Set env vars: ANTHROPIC_API_KEY, PORT=8000
+  Grab the live URL, update README.md line 3.
+
+STEP 3 - Add to website
+------------------------
+  File: c:\Code\Websites\_mine\index.html
+  Insert the HTML from: docs/portfolio-snippet.html
+  Place it after the last <article class="work-item"> block.
+  Update work-number if position changes.
+
+STEP 4 - Deploy website
+------------------------
+  cd c:\Code\Websites\_mine
+  npm run build
+  Deploy to hosting.
+
+FILES IN THIS HAND-OFF
+-----------------------
+  docs/portfolio-snippet.html   HTML block ready to paste into index.html
+  docs/PORTFOLIO.md             Build narrative, challenges, decisions
+  docs/1.png                    Screenshot: empty form
+  docs/2.png                    Screenshot: analyze results
+  docs/3.png                    Screenshot: full flow with rewrite
+  README.md                     Install/usage docs (done)

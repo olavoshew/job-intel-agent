@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <title>Job Intel Agent</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            color: #c8c8e0;
+            background: #08081a;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #e0e0f8;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #6a6a8e;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        .stripe-accent {
+            height: 3px;
+            background: repeating-linear-gradient(
+                90deg,
+                #6d28d9 0px, #6d28d9 8px,
+                transparent 8px, transparent 12px,
+                #4338ca 12px, #4338ca 20px,
+                transparent 20px, transparent 24px
+            );
+            border-radius: 2px;
+            margin-bottom: 1.25rem;
+        }
+        form {
+            background: #0e0e20;
+            border: 1px solid #1a1a2e;
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+        textarea, input[type="password"], select {
+            width: 100%;
+            padding: 0.7rem 0.85rem;
+            border: 1px solid #252540;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: #0a0a18;
+            color: #c8c8e0;
+            font-family: system-ui, sans-serif;
+            transition: border-color 0.15s;
+        }
+        textarea:focus, input[type="password"]:focus, select:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        textarea { height: 120px; resize: vertical; }
+        select option { background: #0e0e20; color: #c8c8e0; }
+        .row { display: flex; gap: 0.75rem; margin-top: 0.75rem; }
+        .row select { width: 160px; flex-shrink: 0; }
+        .row input[type="password"] { flex: 1; }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.75rem 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #8a8aaa;
+        }
+        label input[type="checkbox"] { accent-color: #7c3aed; }
+        button {
+            background: linear-gradient(135deg, #6d28d9, #4338ca);
+            color: #e8e8ff;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.15s;
+        }
+        button:hover { opacity: 0.88; }
+        button:disabled { opacity: 0.35; cursor: not-allowed; }
+        .field-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            margin-bottom: 0.3rem;
+            color: #9a9abc;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .error { color: #ef4444; margin-top: 1rem; font-size: 0.85rem; }
+        #results, #rewrite-results {
+            margin-top: 1.5rem;
+            display: none;
+            background: #0e0e20;
+            border: 1px solid #1a1a2e;
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+        .score {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #a78bfa;
+            border-bottom: 1px solid #1a1a2e;
+            padding-bottom: 0.75rem;
+        }
+        .section { margin-bottom: 1rem; }
+        .section h2 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #7c7caa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #151530;
+        }
+        .section ul { padding-left: 1.25rem; }
+        .section li {
+            margin-bottom: 0.3rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #b0b0d0;
+        }
+        .section li::marker { color: #4338ca; }
+        .pitch {
+            background: #0a0a18;
+            border-left: 3px solid #6d28d9;
+            padding: 0.75rem;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #b8b8d8;
+        }
+        .tip {
+            background: #100e22;
+            border-left: 3px solid #7c3aed;
+            padding: 0.6rem 0.85rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.88rem;
+            color: #b0b0d0;
+        }
+        .tip strong { display: block; font-size: 0.82rem; color: #a78bfa; }
+        .tip em { color: #8888aa; font-style: normal; }
+        .rewritten-cv {
+            background: #0a0a18;
+            border: 1px solid #1a1a2e;
+            padding: 0.85rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: system-ui, sans-serif;
+            color: #b8b8d8;
+        }
+        .copy-btn {
+            background: #1a1a34;
+            border: 1px solid #252540;
+            color: #8a8aaa;
+            font-size: 0.78rem;
+            padding: 0.35rem 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .copy-btn:hover { border-color: #7c3aed; color: #c8c8e0; }
+        .cv-toggle {
+            display: inline-block;
+            font-size: 0.82rem;
+            color: #7c7caa;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            text-decoration: none;
+            border-bottom: 1px dashed #3a3a5e;
+            padding-bottom: 1px;
+        }
+        .cv-toggle:hover { color: #a78bfa; border-bottom-color: #a78bfa; }
+        input[type="file"] { font-size: 0.85rem; margin-top: 0.25rem; color: #8a8aaa; }
+        input[type="file"]::file-selector-button {
+            background: #1a1a34;
+            border: 1px solid #252540;
+            color: #9a9abc;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-right: 0.5rem;
+        }
+        input[type="file"]::file-selector-button:hover {
+            border-color: #7c3aed;
+            color: #c8c8e0;
+        }
+        #cv-paste { margin-top: 0.4rem; }
+    </style>
+</head>
+<body>
+    <h1>Job Intel Agent</h1>
+    <div class="stripe-accent"></div>
+    <p class="subtitle">Paste a job listing, upload your CV, and get a match score with actionable tips.</p>
+    <form id="form">
+        <div class="field-label">Job Description</div>
+        <textarea id="input" placeholder="Paste a job URL or the full job description text"></textarea>
+        <div class="field-label">Your CV</div>
+        <input type="file" id="cv-file" accept=".txt">
+        <span class="cv-toggle" id="cv-toggle">Paste CV Manually</span>
+        <div id="cv-paste" style="display:none">
+            <textarea id="cv" placeholder="Paste your CV text here"></textarea>
+        </div>
+        <div class="row">
+            <select id="provider">
+                <option value="anthropic">Anthropic</option>
+                <option value="openai">OpenAI</option>
+            </select>
+            <input type="password" id="apikey" placeholder="Paste your API key here">
+        </div>
+        <label>
+            <input type="checkbox" id="demo">
+            Try demo (no API key needed)
+        </label>
+        <div class="btn-row">
+            <button type="submit" id="btn">Analyze</button>
+            <button type="button" id="rewrite-btn">Rewrite CV</button>
+        </div>
+    </form>
+    <div id="error" class="error"></div>
+    <div id="results">
+        <div class="score">Match: <span id="score-val"></span>%</div>
+        <div class="section">
+            <h2>Gaps</h2>
+            <ul id="gaps"></ul>
+        </div>
+        <div class="section">
+            <h2>Talking Points</h2>
+            <ul id="points"></ul>
+        </div>
+        <div class="section">
+            <h2>Pitch</h2>
+            <p class="pitch" id="pitch"></p>
+        </div>
+    </div>
+    <div id="rewrite-results">
+        <div class="section">
+            <h2>Tips to Improve Your CV</h2>
+            <div id="tips"></div>
+        </div>
+        <div class="section">
+            <h2>Rewritten CV</h2>
+            <div class="rewritten-cv" id="rewritten-cv"></div>
+            <button type="button" class="copy-btn" id="copy-btn">Copy to clipboard</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

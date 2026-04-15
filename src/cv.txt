@@ -1,0 +1,24 @@
+Olavo Silverio, Python Developer and Creative Technologist based in Sydney.
+
+Experience:
+- 3 years building Python applications including FastAPI, Flask, and automation scripts
+- 2 years developing interactive experiences with Unity and C#
+- Built internal tools and data pipelines for media production workflows
+- Automated repetitive tasks saving 15+ hours per week across teams
+- Deployed containerized applications using Docker on AWS
+
+Skills: Python, FastAPI, Flask, C#, Unity, Docker, PostgreSQL, Git,
+JavaScript, HTML/CSS, REST APIs, automation, scripting, data processing
+
+Education: Bachelor of IT (expected 2025), currently on student visa
+working up to 48 hours per fortnight.
+
+Projects:
+- Job Intel Agent: AI-powered tool that analyzes job descriptions and
+  scores CV fit using the Claude API
+- Automation suite for video production pipeline (Python + FFmpeg)
+- Portfolio website with interactive 3D elements (Three.js + Unity WebGL)
+
+Looking for backend or full-stack roles where I can combine Python
+skills with creative problem-solving. Open to contract or part-time
+positions that fit within visa work limits.
