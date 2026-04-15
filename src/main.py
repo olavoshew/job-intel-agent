@@ -4,6 +4,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -33,8 +34,8 @@ class AnalyzeRequest(BaseModel):
 
 
 @app.get("/")
-async def health():
-    return {"status": "ok"}
+async def root():
+    return RedirectResponse(url="/static/index.html")
 
 
 @app.post("/analyze")
