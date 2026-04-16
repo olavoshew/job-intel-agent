@@ -57,7 +57,38 @@ function setButton(btn, disabled, text) {
     btn.textContent = text;
 }
 
+function showSkeleton(container) {
+    container.innerHTML = "";
+    var skel = document.createElement("div");
+    skel.className = "skeleton-placeholder";
+    skel.innerHTML =
+        '<div class="skeleton skeleton-title"></div>' +
+        '<div class="skeleton skeleton-line w-full"></div>' +
+        '<div class="skeleton skeleton-line w-75"></div>' +
+        '<div class="skeleton skeleton-line w-60"></div>' +
+        '<div class="skeleton skeleton-line w-full"></div>' +
+        '<div class="skeleton skeleton-line w-50"></div>';
+    container.appendChild(skel);
+    container.style.display = "block";
+    container.classList.remove("fade-in");
+}
+
+function applyFadeIn(container) {
+    container.classList.remove("fade-in");
+    void container.offsetWidth;
+    container.classList.add("fade-in");
+}
+
+function staggerList(ul) {
+    var items = ul.querySelectorAll("li");
+    items.forEach(function (li, i) {
+        li.style.setProperty("--i", i);
+        li.classList.add("stagger-in");
+    });
+}
+
 function renderAnalyze(data) {
+    var resultsEl = document.getElementById("results");
     document.getElementById("score-val").textContent = data.match_percentage;
     var gapsUl = document.getElementById("gaps");
     gapsUl.innerHTML = "";
@@ -74,10 +105,18 @@ function renderAnalyze(data) {
         pointsUl.appendChild(li);
     });
     document.getElementById("pitch").textContent = data.pitch;
-    document.getElementById("results").style.display = "block";
+    var placeholder = resultsEl.querySelector(".skeleton-placeholder");
+    if (placeholder) placeholder.remove();
+    document.getElementById("score-val").parentElement.style.display = "";
+    document.querySelectorAll("#results .section").forEach(function (s) { s.style.display = ""; });
+    resultsEl.style.display = "block";
+    applyFadeIn(resultsEl);
+    staggerList(gapsUl);
+    staggerList(pointsUl);
 }
 
 function renderRewrite(data) {
+    var rewriteEl = document.getElementById("rewrite-results");
     var tipsEl = document.getElementById("tips");
     tipsEl.innerHTML = "";
     data.tips.forEach(function (t) {
@@ -87,7 +126,11 @@ function renderRewrite(data) {
         tipsEl.appendChild(div);
     });
     document.getElementById("rewritten-cv").textContent = data.rewritten_cv;
-    document.getElementById("rewrite-results").style.display = "block";
+    var placeholder = rewriteEl.querySelector(".skeleton-placeholder");
+    if (placeholder) placeholder.remove();
+    document.querySelectorAll("#rewrite-results .section").forEach(function (s) { s.style.display = ""; });
+    rewriteEl.style.display = "block";
+    applyFadeIn(rewriteEl);
 }
 
 async function submitRequest(endpoint, body) {
@@ -109,7 +152,10 @@ document.getElementById("form").addEventListener("submit", async function (e) {
     e.preventDefault();
     var btn = document.getElementById("btn");
     errorEl.textContent = "";
-    document.getElementById("results").style.display = "none";
+    var resultsEl = document.getElementById("results");
+    resultsEl.querySelector(".score").style.display = "none";
+    resultsEl.querySelectorAll(".section").forEach(function (s) { s.style.display = "none"; });
+    showSkeleton(resultsEl);
     setButton(btn, true, "Analyzing...");
     try {
         var form = getFormData();
@@ -117,6 +163,7 @@ document.getElementById("form").addEventListener("submit", async function (e) {
         var data = await submitRequest("/analyze", body);
         renderAnalyze(data);
     } catch (err) {
+        resultsEl.style.display = "none";
         errorEl.textContent = err.message;
     } finally {
         setButton(btn, false, "Analyze");
@@ -126,7 +173,9 @@ document.getElementById("form").addEventListener("submit", async function (e) {
 document.getElementById("rewrite-btn").addEventListener("click", async function () {
     var btn = document.getElementById("rewrite-btn");
     errorEl.textContent = "";
-    document.getElementById("rewrite-results").style.display = "none";
+    var rewriteEl = document.getElementById("rewrite-results");
+    rewriteEl.querySelectorAll(".section").forEach(function (s) { s.style.display = "none"; });
+    showSkeleton(rewriteEl);
     setButton(btn, true, "Rewriting...");
     try {
         var form = getFormData();
@@ -134,6 +183,7 @@ document.getElementById("rewrite-btn").addEventListener("click", async function 
         var data = await submitRequest("/rewrite", body);
         renderRewrite(data);
     } catch (err) {
+        rewriteEl.style.display = "none";
         errorEl.textContent = err.message;
     } finally {
         setButton(btn, false, "Rewrite CV");
