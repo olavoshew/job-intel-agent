@@ -115,6 +115,12 @@ function renderAnalyze(data) {
     staggerList(pointsUl);
 }
 
+function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
 function renderRewrite(data) {
     var rewriteEl = document.getElementById("rewrite-results");
     var tipsEl = document.getElementById("tips");
@@ -122,7 +128,7 @@ function renderRewrite(data) {
     data.tips.forEach(function (t) {
         var div = document.createElement("div");
         div.className = "tip";
-        div.innerHTML = "<strong>" + t.section + ":</strong> " + t.problem + "<br><em>" + t.suggestion + "</em>";
+        div.innerHTML = "<strong>" + escapeHtml(t.section) + ":</strong> " + escapeHtml(t.problem) + "<br><em>" + escapeHtml(t.suggestion) + "</em>";
         tipsEl.appendChild(div);
     });
     document.getElementById("rewritten-cv").textContent = data.rewritten_cv;

@@ -5,6 +5,9 @@ import pytest
 from src.agent import extract_jd, rewrite_cv, score_cv
 from src.schemas import CVRewrite, CVScore, JobDescription
 
+FAKE_ANTHROPIC_KEY = "sk-ant-test-00000000000000"
+FAKE_OPENAI_KEY = "sk-test-00000000000000000"
+
 
 @pytest.mark.asyncio
 async def test_extract_jd_anthropic():
@@ -18,7 +21,7 @@ async def test_extract_jd_anthropic():
     }
 
     with patch("src.agent._call_anthropic", return_value=jd_data):
-        result = await extract_jd("Some job description text", api_key="sk-test", provider="anthropic")
+        result = await extract_jd("Some job description text", api_key=FAKE_ANTHROPIC_KEY, provider="anthropic")
 
     assert isinstance(result, JobDescription)
     assert result.title == "Backend Engineer"
@@ -38,7 +41,7 @@ async def test_extract_jd_openai():
     }
 
     with patch("src.agent._call_openai", return_value=jd_data):
-        result = await extract_jd("Some job description text", api_key="sk-test", provider="openai")
+        result = await extract_jd("Some job description text", api_key=FAKE_OPENAI_KEY, provider="openai")
 
     assert isinstance(result, JobDescription)
     assert result.title == "Frontend Engineer"
@@ -64,7 +67,7 @@ async def test_score_cv_anthropic():
     )
 
     with patch("src.agent._call_anthropic", return_value=score_data):
-        result = await score_cv(jd, "Some CV text here", api_key="sk-test", provider="anthropic")
+        result = await score_cv(jd, "Some CV text here", api_key=FAKE_ANTHROPIC_KEY, provider="anthropic")
 
     assert isinstance(result, CVScore)
     assert 0 <= result.match_percentage <= 100
@@ -91,7 +94,7 @@ async def test_score_cv_openai():
     )
 
     with patch("src.agent._call_openai", return_value=score_data):
-        result = await score_cv(jd, "Some CV text here", api_key="sk-test", provider="openai")
+        result = await score_cv(jd, "Some CV text here", api_key=FAKE_OPENAI_KEY, provider="openai")
 
     assert isinstance(result, CVScore)
     assert result.match_percentage == 70
@@ -116,7 +119,7 @@ async def test_rewrite_cv_anthropic():
     )
 
     with patch("src.agent._call_anthropic", return_value=rewrite_data):
-        result = await rewrite_cv(jd, "Some CV text", api_key="sk-test", provider="anthropic")
+        result = await rewrite_cv(jd, "Some CV text", api_key=FAKE_ANTHROPIC_KEY, provider="anthropic")
 
     assert isinstance(result, CVRewrite)
     assert len(result.tips) == 1

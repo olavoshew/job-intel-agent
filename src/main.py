@@ -1,12 +1,13 @@
+import logging
 import os
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.agent import extract_jd, rewrite_cv, score_cv
 from src.demo import DEMO_CV, DEMO_JD, DEMO_REWRITE, DEMO_SCORE
@@ -14,6 +15,7 @@ from src.schemas import CVRewrite, CVScore
 from src.scraper import fetch_jd
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -24,12 +26,27 @@ if STATIC_DIR.exists():
 CV_PATH = Path(__file__).resolve().parent / "cv.txt"
 
 
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self'; "
+        "img-src 'self' data:"
+    )
+    return response
+
+
 class AnalyzeRequest(BaseModel):
-    url: Optional[str] = None
-    text: Optional[str] = None
-    cv_text: Optional[str] = None
+    url: Optional[str] = Field(None, max_length=2000)
+    text: Optional[str] = Field(None, max_length=50000)
+    cv_text: Optional[str] = Field(None, max_length=10000)
     demo: Optional[bool] = False
-    api_key: Optional[str] = None
+    api_key: Optional[str] = Field(None, max_length=200)
     provider: Optional[str] = "anthropic"
 
 
@@ -56,9 +73,11 @@ async def analyze(req: AnalyzeRequest):
         result = await score_cv(jd, cv_text, api_key=req.api_key, provider=req.provider)
         return result
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        logger.warning("Validation error in /analyze: %s", e)
+        raise HTTPException(status_code=422, detail="Invalid job description input")
     except RuntimeError as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.error("Processing error in /analyze: %s", e)
+        raise HTTPException(status_code=502, detail="Analysis service error")
 
 
 @app.post("/rewrite")
@@ -81,6 +100,8 @@ async def rewrite(req: AnalyzeRequest):
         result = await rewrite_cv(jd, req.cv_text, api_key=req.api_key, provider=req.provider)
         return result
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        logger.warning("Validation error in /rewrite: %s", e)
+        raise HTTPException(status_code=422, detail="Invalid job description input")
     except RuntimeError as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.error("Processing error in /rewrite: %s", e)
+        raise HTTPException(status_code=502, detail="Analysis service error")
